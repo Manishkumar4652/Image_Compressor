@@ -9,6 +9,7 @@ import { resizeImageInBrowser } from '@/lib/resize/resizeImage';
 import { ResizeControls } from '@/components/ui/ResizeControls';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
 import { CompressionResultCard } from '@/components/ui/CompressionResultCard';
+import { trackResizeUsage } from '@/lib/analytics/events';
 
 interface ImageResizerToolProps {
   tool: ToolDefinition;
@@ -80,6 +81,7 @@ export function ImageResizerTool({ tool }: ImageResizerToolProps) {
 
         setResult(res);
         setStatus('success');
+        trackResizeUsage(res.dimensions ? `${res.dimensions.width}x${res.dimensions.height}` : `${w}x${h}`);
       } catch (err: unknown) {
         setStatus('error');
         if (err instanceof ProcessingError) {

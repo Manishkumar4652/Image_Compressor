@@ -9,6 +9,7 @@ import { createBatchZip } from '@/lib/zip';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { BatchQueueList } from '@/components/ui/BatchQueueList';
 import { BatchSummaryCard } from '@/components/ui/BatchSummaryCard';
+import { trackBatchCompression, trackDownload } from '@/lib/analytics/events';
 
 interface BatchImageCompressorProps {
   tool: ToolDefinition;
@@ -133,6 +134,7 @@ export function BatchImageCompressor({ tool }: BatchImageCompressorProps) {
     setIsProcessing(true);
     setIsFinished(false);
     setCurrentIndex(0);
+    trackBatchCompression(queue.length);
 
     const settings: BatchSettings = { quality, format };
     const updatedQueue = [...queue];
@@ -162,6 +164,7 @@ export function BatchImageCompressor({ tool }: BatchImageCompressorProps) {
   const handleDownloadZip = async () => {
     if (isGeneratingZip) return;
     setIsGeneratingZip(true);
+    trackDownload('ZIP');
 
     try {
       const { url } = await createBatchZip(queue);

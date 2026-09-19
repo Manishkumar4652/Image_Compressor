@@ -8,6 +8,7 @@ import { validateImageFile } from '@/lib/compression/validation';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
 import { CompressionResultCard } from '@/components/ui/CompressionResultCard';
 import { TargetSizeCompressor } from '@/components/tools/TargetSizeCompressor';
+import { trackCompressionStart, trackCompressionComplete } from '@/lib/analytics/events';
 
 interface SingleImageCompressorProps {
   tool: ToolDefinition;
@@ -60,6 +61,7 @@ export function SingleImageCompressor({ tool, initialTargetBytes }: SingleImageC
     async (targetFile: File, targetQuality: number, targetFormat: ImageFormat) => {
       setStatus('compressing');
       setErrorMessage(null);
+      trackCompressionStart(targetFormat, 1);
 
       try {
         validateImageFile(targetFile);
@@ -71,6 +73,7 @@ export function SingleImageCompressor({ tool, initialTargetBytes }: SingleImageC
 
         setResult(res);
         setStatus('success');
+        trackCompressionComplete(res.format, res.compressionRatio || 0);
       } catch (err: unknown) {
         setStatus('error');
         if (err instanceof ProcessingError) {

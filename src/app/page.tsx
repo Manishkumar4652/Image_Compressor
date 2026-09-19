@@ -48,7 +48,7 @@ export default function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
             name: 'PixOptimize',
-            url: 'https://pixoptimize.com',
+            url: 'https://pixoptimize.vercel.app',
             applicationCategory: 'MultimediaApplication',
             operatingSystem: 'All',
             browserRequirements: 'Requires HTML5 and JavaScript support',

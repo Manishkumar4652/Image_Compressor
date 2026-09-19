@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { constructMetadata } from '@/lib/seo/metadata';
 import { WebSiteJsonLd } from '@/components/seo/JsonLd';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta' });
@@ -29,6 +30,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} ${jakarta.variable} ${serif.variable} min-h-screen bg-[#f8f7fd] font-sans text-slate-900 antialiased flex flex-col justify-between selection:bg-purple-200 selection:text-slate-900`}
       >
+        <GoogleAnalytics />
         <WebSiteJsonLd />
         <Navbar />
         <div className="flex-1 relative z-10">{children}</div>

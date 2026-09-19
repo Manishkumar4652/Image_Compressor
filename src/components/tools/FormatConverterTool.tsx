@@ -8,6 +8,7 @@ import { loadImageElement } from '@/lib/compression/loader';
 import { convertFormatInBrowser } from '@/lib/conversion/convertImage';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
 import { CompressionResultCard } from '@/components/ui/CompressionResultCard';
+import { trackFormatConversion } from '@/lib/analytics/events';
 
 interface FormatConverterToolProps {
   tool: ToolDefinition;
@@ -68,6 +69,8 @@ export function FormatConverterTool({ tool }: FormatConverterToolProps) {
 
         setResult(res);
         setStatus('success');
+        const fromFormat = targetFile.type.split('/')[1] || 'image';
+        trackFormatConversion(fromFormat, targetFormat);
       } catch (err: unknown) {
         setStatus('error');
         if (err instanceof ProcessingError) {

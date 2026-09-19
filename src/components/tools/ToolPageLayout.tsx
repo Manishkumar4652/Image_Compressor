@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { ToolDefinition } from '@/types/tool';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -11,12 +13,17 @@ import { RelatedTools } from '@/components/tools/RelatedTools';
 import { SoftwareAppJsonLd, BreadcrumbJsonLd, FAQJsonLd } from '@/components/seo/JsonLd';
 import { AdSlot } from '@/components/ui/AdSlot';
 import { siteConfig } from '@/config/site';
+import { trackToolUsage } from '@/lib/analytics/events';
 
 interface ToolPageLayoutProps {
   tool: ToolDefinition;
 }
 
 export function ToolPageLayout({ tool }: ToolPageLayoutProps) {
+  useEffect(() => {
+    trackToolUsage(tool.slug);
+  }, [tool.slug]);
+
   const canonicalUrl = `${siteConfig.domain}/${tool.slug}`;
 
   const breadcrumbItems = [

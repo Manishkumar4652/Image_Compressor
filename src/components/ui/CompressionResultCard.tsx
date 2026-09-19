@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { trackDownload } from '@/lib/analytics/events';
 
 interface CompressionResultCardProps {
   originalSizeStr: string;
@@ -49,6 +50,7 @@ export function CompressionResultCard({
           <a
             href={downloadUrl}
             download={filename}
+            onClick={() => trackDownload(format.toUpperCase())}
             className="w-full sm:w-auto flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 text-sm font-extrabold text-white shadow-md shadow-indigo-500/25 transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 min-h-[44px] order-1 sm:order-2"
           >
             <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

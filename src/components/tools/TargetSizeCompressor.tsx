@@ -8,6 +8,7 @@ import { ProcessingError } from '@/types/processing';
 import { TargetSizePresets } from '@/components/ui/TargetSizePresets';
 import { TargetSizeResultCard } from '@/components/ui/TargetSizeResultCard';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
+import { trackTargetSizeUsage } from '@/lib/analytics/events';
 
 interface TargetSizeCompressorProps {
   tool: ToolDefinition;
@@ -70,6 +71,7 @@ export function TargetSizeCompressor({ tool, initialTargetBytes }: TargetSizeCom
 
         setResult(res);
         setStatus('success');
+        trackTargetSizeUsage(formatBytes(targetSize));
       } catch (err: unknown) {
         setStatus('error');
         if (err instanceof ProcessingError) {
