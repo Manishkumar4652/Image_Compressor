@@ -39,7 +39,7 @@ export function constructMetadata({
     publisher: siteConfig.name,
     metadataBase: new URL(siteConfig.domain),
     verification: {
-      google: '6YzDnbx3uHIF6BvuT2anz5spCTEhQN76gPbU6UZcf9o',
+      google: 't7XTQ2dp23yqvM6Ep270LR3LtPTzyXcwKle-j_Nnp6c',
     },
     alternates: {
       canonical: absoluteCanonical,
