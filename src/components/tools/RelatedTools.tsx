@@ -7,8 +7,43 @@ interface RelatedToolsProps {
 }
 
 export function RelatedTools({ currentSlug }: RelatedToolsProps) {
-  const currentTool = TOOLS.find((t) => t.slug === currentSlug);
-  const related = TOOLS.filter((t) => t.slug !== currentSlug && (t.category === currentTool?.category || true)).slice(0, 3);
+  const getRelatedSlugs = (slug: string): string[] => {
+    switch (slug) {
+      case 'image-compressor':
+        return ['jpg-compressor', 'png-compressor', 'webp-compressor'];
+      case 'jpg-compressor':
+        return ['jpg-to-webp', 'compress-image-to-100kb', 'image-resizer'];
+      case 'png-compressor':
+        return ['png-to-webp', 'compress-image-to-100kb', 'image-resizer'];
+      case 'webp-compressor':
+        return ['webp-to-jpg', 'image-compressor', 'image-resizer'];
+      case 'image-resizer':
+        return ['image-compressor', 'jpg-compressor', 'png-compressor'];
+      case 'image-converter':
+        return ['jpg-to-webp', 'png-to-webp', 'webp-to-jpg'];
+      case 'jpg-to-webp':
+        return ['png-to-webp', 'webp-to-jpg', 'jpg-compressor'];
+      case 'png-to-webp':
+        return ['jpg-to-webp', 'png-compressor', 'image-converter'];
+      case 'webp-to-jpg':
+        return ['jpg-to-webp', 'webp-compressor', 'image-converter'];
+      case 'compress-image-to-50kb':
+        return ['compress-image-to-100kb', 'compress-image-to-200kb', 'image-compressor'];
+      case 'compress-image-to-100kb':
+        return ['compress-image-to-50kb', 'compress-image-to-200kb', 'image-compressor'];
+      case 'compress-image-to-200kb':
+        return ['compress-image-to-100kb', 'compress-image-to-500kb', 'image-compressor'];
+      case 'compress-image-to-500kb':
+        return ['compress-image-to-200kb', 'compress-image-to-1mb', 'image-compressor'];
+      case 'compress-image-to-1mb':
+        return ['compress-image-to-500kb', 'compress-image-to-200kb', 'image-compressor'];
+      default:
+        return TOOLS.filter((t) => t.slug !== slug).slice(0, 3).map((t) => t.slug);
+    }
+  };
+
+  const relatedSlugs = getRelatedSlugs(currentSlug);
+  const related = TOOLS.filter((t) => relatedSlugs.includes(t.slug));
 
   return (
     <section className="my-16 border-t border-slate-200/80 pt-12">
