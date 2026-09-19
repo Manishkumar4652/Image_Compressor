@@ -2,10 +2,10 @@ export const siteConfig = {
   name: 'PixOptimize',
   shortName: 'PixOptimize',
   tagline: 'Compress, Resize & Optimize Images Online',
-  domain: process.env.NEXT_PUBLIC_SITE_URL || 'https://pixoptimize.com',
+  domain: process.env.NEXT_PUBLIC_SITE_URL || 'https://pixoptimize.vercel.app',
   description:
     'Free, fast, and secure browser-side image compression, resizer, and converter tool. Compress, Resize & Optimize Images Online without uploading to external servers.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://pixoptimize.com',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://pixoptimize.vercel.app',
   ogImage: '/og-image.png',
   creator: 'PixOptimize Team',
   links: {
