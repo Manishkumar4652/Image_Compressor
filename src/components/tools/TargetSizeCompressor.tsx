@@ -8,7 +8,13 @@ import { ProcessingError } from '@/types/processing';
 import { TargetSizePresets } from '@/components/ui/TargetSizePresets';
 import { TargetSizeResultCard } from '@/components/ui/TargetSizeResultCard';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
-import { trackTargetSizeUsage } from '@/lib/analytics/events';
+import {
+  trackImageProcessed,
+  trackImageCompression,
+  trackTargetSizeCompleted,
+  trackToolError,
+  categorizeError,
+} from '@/lib/analytics';
 
 interface TargetSizeCompressorProps {
   tool: ToolDefinition;
@@ -18,9 +24,9 @@ interface TargetSizeCompressorProps {
 export function TargetSizeCompressor({ tool, initialTargetBytes }: TargetSizeCompressorProps) {
   const [file, setFile] = useState<File | null>(null);
   const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(null);
-  const [targetBytes, setTargetBytes] = useState<number>(
-    initialTargetBytes || tool.targetSizeBytes || 50 * 1024
-  );
+
+  const defaultTarget = initialTargetBytes || tool.targetSizeBytes || 50 * 1024;
+  const [targetBytes, setTargetBytes] = useState<number>(defaultTarget);
   const [format, setFormat] = useState<'original' | ImageFormat>('original');
 
   const [status, setStatus] = useState<'idle' | 'searching' | 'success' | 'error'>('idle');
@@ -33,8 +39,8 @@ export function TargetSizeCompressor({ tool, initialTargetBytes }: TargetSizeCom
   const formatBytes = (bytes: number): string => {
     if (bytes === 0) return '0 B';
     if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const cleanupUrls = useCallback(() => {
@@ -60,6 +66,7 @@ export function TargetSizeCompressor({ tool, initialTargetBytes }: TargetSizeCom
     async (targetFile: File, targetSize: number, targetFormat: 'original' | ImageFormat) => {
       setStatus('searching');
       setErrorMessage(null);
+      const inFmt = targetFile.type.split('/')[1] || 'image';
 
       try {
         validateImageFile(targetFile);
@@ -71,9 +78,34 @@ export function TargetSizeCompressor({ tool, initialTargetBytes }: TargetSizeCom
 
         setResult(res);
         setStatus('success');
-        trackTargetSizeUsage(formatBytes(targetSize));
+        const kbValue = Math.round(targetSize / 1024);
+        trackImageProcessed({
+          tool_name: tool.slug,
+          operation: 'target_size',
+          input_format: inFmt,
+          output_format: res.format,
+          processing_mode: 'target_size',
+        });
+        trackImageCompression({
+          tool_name: tool.slug,
+          input_format: inFmt,
+          output_format: res.format,
+          compression_mode: 'target_size',
+        });
+        trackTargetSizeCompleted({
+          target_size: kbValue,
+          target_unit: 'KB',
+          input_format: inFmt,
+          output_format: res.format,
+        });
       } catch (err: unknown) {
         setStatus('error');
+        const msg = err instanceof Error ? err.message : undefined;
+        trackToolError({
+          tool_name: tool.slug,
+          error_type: categorizeError(msg),
+          operation: 'target_size',
+        });
         if (err instanceof ProcessingError) {
           setErrorMessage(err.message);
         } else {
@@ -81,7 +113,7 @@ export function TargetSizeCompressor({ tool, initialTargetBytes }: TargetSizeCom
         }
       }
     },
-    []
+    [tool.slug]
   );
 
   const handleSelectFile = (selectedFile: File) => {

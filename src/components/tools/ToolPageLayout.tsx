@@ -13,7 +13,7 @@ import { RelatedTools } from '@/components/tools/RelatedTools';
 import { SoftwareAppJsonLd, BreadcrumbJsonLd, FAQJsonLd } from '@/components/seo/JsonLd';
 import { AdSlot } from '@/components/ui/AdSlot';
 import { siteConfig } from '@/config/site';
-import { trackToolUsage } from '@/lib/analytics/events';
+import { trackToolOpen } from '@/lib/analytics';
 
 interface ToolPageLayoutProps {
   tool: ToolDefinition;
@@ -21,8 +21,9 @@ interface ToolPageLayoutProps {
 
 export function ToolPageLayout({ tool }: ToolPageLayoutProps) {
   useEffect(() => {
-    trackToolUsage(tool.slug);
-  }, [tool.slug]);
+    const path = typeof window !== 'undefined' ? window.location.pathname : `/${tool.slug}`;
+    trackToolOpen(tool.slug, tool.category, path);
+  }, [tool.slug, tool.category]);
 
   const canonicalUrl = `${siteConfig.domain}/${tool.slug}`;
 

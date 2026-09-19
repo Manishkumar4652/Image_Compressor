@@ -8,7 +8,12 @@ import { loadImageElement } from '@/lib/compression/loader';
 import { convertFormatInBrowser } from '@/lib/conversion/convertImage';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
 import { CompressionResultCard } from '@/components/ui/CompressionResultCard';
-import { trackFormatConversion } from '@/lib/analytics/events';
+import {
+  trackImageProcessed,
+  trackImageConversion,
+  trackToolError,
+  categorizeError,
+} from '@/lib/analytics';
 
 interface FormatConverterToolProps {
   tool: ToolDefinition;
@@ -58,6 +63,7 @@ export function FormatConverterTool({ tool }: FormatConverterToolProps) {
     async (targetFile: File, q: number) => {
       setStatus('converting');
       setErrorMessage(null);
+      const fromFormat = targetFile.type.split('/')[1] || 'image';
 
       try {
         validateImageFile(targetFile);
@@ -69,10 +75,26 @@ export function FormatConverterTool({ tool }: FormatConverterToolProps) {
 
         setResult(res);
         setStatus('success');
-        const fromFormat = targetFile.type.split('/')[1] || 'image';
-        trackFormatConversion(fromFormat, targetFormat);
+        trackImageProcessed({
+          tool_name: tool.slug,
+          operation: 'convert',
+          input_format: fromFormat,
+          output_format: targetFormat,
+          processing_mode: 'conversion',
+        });
+        trackImageConversion({
+          input_format: fromFormat,
+          output_format: targetFormat,
+          tool_name: tool.slug,
+        });
       } catch (err: unknown) {
         setStatus('error');
+        const msg = err instanceof Error ? err.message : undefined;
+        trackToolError({
+          tool_name: tool.slug,
+          error_type: categorizeError(msg),
+          operation: 'convert',
+        });
         if (err instanceof ProcessingError) {
           setErrorMessage(err.message);
         } else {
@@ -80,7 +102,7 @@ export function FormatConverterTool({ tool }: FormatConverterToolProps) {
         }
       }
     },
-    [targetFormat]
+    [targetFormat, tool.slug]
   );
 
   const handleSelectFile = async (selectedFile: File) => {
@@ -285,6 +307,7 @@ export function FormatConverterTool({ tool }: FormatConverterToolProps) {
                 downloadUrl={result.downloadUrl || '#'}
                 filename={result.name}
                 onReset={handleReset}
+                toolName={tool.slug}
               />
 
               <ImagePreviewComparison

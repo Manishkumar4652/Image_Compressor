@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { TargetSizeResult } from '@/lib/compression/targetSizeEngine';
+import { trackFileDownload } from '@/lib/analytics';
 
 interface TargetSizeResultCardProps {
   originalSizeStr: string;
@@ -87,6 +88,13 @@ export function TargetSizeResultCard({
         <a
           href={result.downloadUrl || '#'}
           download={result.name}
+          onClick={() =>
+            trackFileDownload({
+              tool_name: 'target-size-tool',
+              output_format: result.format,
+              download_type: 'single',
+            })
+          }
           className="w-full sm:w-auto flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 text-sm font-extrabold text-white shadow-md shadow-indigo-500/25 transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 min-h-[44px]"
         >
           <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

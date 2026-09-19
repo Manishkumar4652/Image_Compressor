@@ -9,7 +9,12 @@ import { createBatchZip } from '@/lib/zip';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { BatchQueueList } from '@/components/ui/BatchQueueList';
 import { BatchSummaryCard } from '@/components/ui/BatchSummaryCard';
-import { trackBatchCompression, trackDownload } from '@/lib/analytics/events';
+import {
+  trackImageProcessed,
+  trackImageCompression,
+  trackBatchCompleted,
+  trackFileDownload,
+} from '@/lib/analytics';
 
 interface BatchImageCompressorProps {
   tool: ToolDefinition;
@@ -134,7 +139,6 @@ export function BatchImageCompressor({ tool }: BatchImageCompressorProps) {
     setIsProcessing(true);
     setIsFinished(false);
     setCurrentIndex(0);
-    trackBatchCompression(queue.length);
 
     const settings: BatchSettings = { quality, format };
     const updatedQueue = [...queue];
@@ -158,13 +162,41 @@ export function BatchImageCompressor({ tool }: BatchImageCompressorProps) {
 
     setIsProcessing(false);
     setIsFinished(true);
+
+    const successfulCount = updatedQueue.filter((item) => item.status === 'completed').length;
+    const failedCount = updatedQueue.filter((item) => item.status === 'failed').length;
+
+    trackImageProcessed({
+      tool_name: tool.slug,
+      operation: 'batch_compress',
+      input_format: 'batch',
+      output_format: format,
+      processing_mode: 'batch',
+    });
+    trackImageCompression({
+      tool_name: tool.slug,
+      input_format: 'batch',
+      output_format: format,
+      compression_mode: 'batch',
+    });
+    trackBatchCompleted({
+      tool_name: tool.slug,
+      total_files: updatedQueue.length,
+      successful_files: successfulCount,
+      failed_files: failedCount,
+      zip_download_available: successfulCount > 0,
+    });
   };
 
   // Download All as ZIP
   const handleDownloadZip = async () => {
     if (isGeneratingZip) return;
     setIsGeneratingZip(true);
-    trackDownload('ZIP');
+    trackFileDownload({
+      tool_name: tool.slug,
+      output_format: 'zip',
+      download_type: 'batch_zip',
+    });
 
     try {
       const { url } = await createBatchZip(queue);

@@ -8,7 +8,12 @@ import { validateImageFile } from '@/lib/compression/validation';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
 import { CompressionResultCard } from '@/components/ui/CompressionResultCard';
 import { TargetSizeCompressor } from '@/components/tools/TargetSizeCompressor';
-import { trackCompressionStart, trackCompressionComplete } from '@/lib/analytics/events';
+import {
+  trackImageProcessed,
+  trackImageCompression,
+  trackToolError,
+  categorizeError,
+} from '@/lib/analytics';
 
 interface SingleImageCompressorProps {
   tool: ToolDefinition;
@@ -61,7 +66,8 @@ export function SingleImageCompressor({ tool, initialTargetBytes }: SingleImageC
     async (targetFile: File, targetQuality: number, targetFormat: ImageFormat) => {
       setStatus('compressing');
       setErrorMessage(null);
-      trackCompressionStart(targetFormat, 1);
+
+      const inFmt = targetFile.type.split('/')[1] || 'image';
 
       try {
         validateImageFile(targetFile);
@@ -73,9 +79,27 @@ export function SingleImageCompressor({ tool, initialTargetBytes }: SingleImageC
 
         setResult(res);
         setStatus('success');
-        trackCompressionComplete(res.format, res.compressionRatio || 0);
+        trackImageProcessed({
+          tool_name: tool.slug,
+          operation: 'compress',
+          input_format: inFmt,
+          output_format: res.format,
+          processing_mode: 'quality',
+        });
+        trackImageCompression({
+          tool_name: tool.slug,
+          input_format: inFmt,
+          output_format: res.format,
+          compression_mode: 'quality',
+        });
       } catch (err: unknown) {
         setStatus('error');
+        const msg = err instanceof Error ? err.message : undefined;
+        trackToolError({
+          tool_name: tool.slug,
+          error_type: categorizeError(msg),
+          operation: 'compress',
+        });
         if (err instanceof ProcessingError) {
           setErrorMessage(err.message);
         } else {
@@ -83,7 +107,7 @@ export function SingleImageCompressor({ tool, initialTargetBytes }: SingleImageC
         }
       }
     },
-    []
+    [tool.slug]
   );
 
   const handleSelectFile = (selectedFile: File) => {
@@ -381,6 +405,7 @@ export function SingleImageCompressor({ tool, initialTargetBytes }: SingleImageC
                     downloadUrl={result.downloadUrl || '#'}
                     filename={result.name}
                     onReset={handleReset}
+                    toolName={tool.slug}
                   />
 
                   <ImagePreviewComparison

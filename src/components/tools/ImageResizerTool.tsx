@@ -9,7 +9,12 @@ import { resizeImageInBrowser } from '@/lib/resize/resizeImage';
 import { ResizeControls } from '@/components/ui/ResizeControls';
 import { ImagePreviewComparison } from '@/components/ui/ImagePreviewComparison';
 import { CompressionResultCard } from '@/components/ui/CompressionResultCard';
-import { trackResizeUsage } from '@/lib/analytics/events';
+import {
+  trackImageProcessed,
+  trackImageResize,
+  trackToolError,
+  categorizeError,
+} from '@/lib/analytics';
 
 interface ImageResizerToolProps {
   tool: ToolDefinition;
@@ -19,11 +24,13 @@ export function ImageResizerTool({ tool }: ImageResizerToolProps) {
   const [file, setFile] = useState<File | null>(null);
   const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(null);
   const [originalDimensions, setOriginalDimensions] = useState<ImageDimensions>({ width: 0, height: 0 });
+  const [targetWidth, setTargetWidth] = useState<number>(0);
+  const [targetHeight, setTargetHeight] = useState<number>(0);
 
-  const [targetWidth, setTargetWidth] = useState<number>(800);
-  const [targetHeight, setTargetHeight] = useState<number>(600);
-  const [format, setFormat] = useState<ImageFormat>('jpg');
-  const [quality, setQuality] = useState<number>(80);
+  const [format, setFormat] = useState<ImageFormat>(
+    (tool.supportedOutputFormats[0] || 'jpg') as ImageFormat
+  );
+  const [quality, setQuality] = useState<number>(tool.defaultQuality || 85);
 
   const [status, setStatus] = useState<'idle' | 'resizing' | 'success' | 'error'>('idle');
   const [result, setResult] = useState<ProcessingResult | null>(null);
@@ -68,6 +75,7 @@ export function ImageResizerTool({ tool }: ImageResizerToolProps) {
     ) => {
       setStatus('resizing');
       setErrorMessage(null);
+      const inFmt = targetFile.type.split('/')[1] || 'image';
 
       try {
         validateImageFile(targetFile);
@@ -81,9 +89,26 @@ export function ImageResizerTool({ tool }: ImageResizerToolProps) {
 
         setResult(res);
         setStatus('success');
-        trackResizeUsage(res.dimensions ? `${res.dimensions.width}x${res.dimensions.height}` : `${w}x${h}`);
+        trackImageProcessed({
+          tool_name: tool.slug,
+          operation: 'resize',
+          input_format: inFmt,
+          output_format: res.format,
+          processing_mode: 'resize',
+        });
+        trackImageResize({
+          tool_name: tool.slug,
+          input_format: inFmt,
+          output_format: res.format,
+        });
       } catch (err: unknown) {
         setStatus('error');
+        const msg = err instanceof Error ? err.message : undefined;
+        trackToolError({
+          tool_name: tool.slug,
+          error_type: categorizeError(msg),
+          operation: 'resize',
+        });
         if (err instanceof ProcessingError) {
           setErrorMessage(err.message);
         } else {
@@ -91,7 +116,7 @@ export function ImageResizerTool({ tool }: ImageResizerToolProps) {
         }
       }
     },
-    []
+    [tool.slug]
   );
 
   const handleSelectFile = async (selectedFile: File) => {
@@ -354,6 +379,7 @@ export function ImageResizerTool({ tool }: ImageResizerToolProps) {
                 downloadUrl={result.downloadUrl || '#'}
                 filename={result.name}
                 onReset={handleReset}
+                toolName={tool.slug}
               />
 
               <ImagePreviewComparison
