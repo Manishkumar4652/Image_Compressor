@@ -642,6 +642,56 @@ export const TOOLS: ToolDefinition[] = [
       },
     ],
   },
+  {
+    slug: 'image-converter',
+    name: 'Image Converter',
+    shortDescription: 'Convert images between JPG, PNG, and WebP formats online for free.',
+    fullDescription:
+      'Free online image converter tool. Easily convert JPG, PNG, and WebP images to your desired target format 100% inside your browser with full privacy.',
+    category: 'conversion',
+    supportedInputFormats: ['jpg', 'jpeg', 'png', 'webp'],
+    supportedOutputFormats: ['webp', 'jpg', 'png'],
+    defaultQuality: 80,
+    seoTitle: 'Free Online Image Converter - Convert JPG, PNG & WebP Images',
+    seoDescription:
+      'Convert images between JPG, PNG, and WebP formats online for free. Fast, private browser-based image format converter with zero server uploads.',
+    keywords: [
+      'image converter',
+      'convert image online',
+      'image format converter',
+      'convert photo format',
+      'jpg png webp converter',
+    ],
+    features: [
+      {
+        title: 'Multiple Format Support',
+        description: 'Convert between popular web image formats including JPG, PNG, and WebP with zero hassle.',
+      },
+      {
+        title: 'Client-Side Privacy',
+        description: 'All conversions happen 100% inside your web browser memory. Your files are never uploaded to any server.',
+      },
+      {
+        title: 'Batch Image Conversion',
+        description: 'Convert multiple photos simultaneously and download all converted images as a ZIP archive.',
+      },
+    ],
+    howItWorks: [
+      { stepNumber: 1, title: 'Upload Images', description: 'Drag & drop photos or select files from your device.' },
+      { stepNumber: 2, title: 'Choose Target Format', description: 'Select whether to convert your images to WebP, JPG, or PNG.' },
+      { stepNumber: 3, title: 'Download Converted Files', description: 'Save your newly converted image files instantly.' },
+    ],
+    faqs: [
+      {
+        question: 'Is this image converter free to use?',
+        answer: 'Yes, 100% free with no hidden limits or subscription requirements.',
+      },
+      {
+        question: 'Are my photos uploaded to external servers during conversion?',
+        answer: 'No. All conversions happen locally in your web browser memory using HTML5 Canvas.',
+      },
+    ],
+  },
 ];
 
 export function getToolBySlug(slug: string): ToolDefinition | undefined {

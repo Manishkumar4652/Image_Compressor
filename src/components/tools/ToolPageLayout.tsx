@@ -28,7 +28,7 @@ export function ToolPageLayout({ tool }: ToolPageLayoutProps) {
   const isTargetSizeTool = tool.slug === 'compress-image-to-50kb' || tool.slug === 'compress-image-to-100kb';
   const isResizerTool = tool.slug === 'image-resizer';
   const isConverterTool =
-    tool.slug === 'jpg-to-webp' || tool.slug === 'png-to-webp' || tool.slug === 'webp-to-jpg';
+    tool.slug === 'jpg-to-webp' || tool.slug === 'png-to-webp' || tool.slug === 'webp-to-jpg' || tool.slug === 'image-converter';
 
   return (
     <>

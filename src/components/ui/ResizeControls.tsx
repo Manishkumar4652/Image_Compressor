@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ImageDimensions } from '@/types/processing';
 
 interface ResizeControlsProps {
@@ -55,13 +55,17 @@ export function ResizeControls({
   const [customPixelH, setCustomPixelH] = useState<string>(originalDimensions.height ? originalDimensions.height.toString() : '600');
   const [lockAspectRatio, setLockAspectRatio] = useState<boolean>(true);
 
-  // Update initial custom pixels when original dimensions arrive
-  useEffect(() => {
+  const [prevOrigW, setPrevOrigW] = useState<number>(originalDimensions.width);
+  const [prevOrigH, setPrevOrigH] = useState<number>(originalDimensions.height);
+
+  if (originalDimensions.width !== prevOrigW || originalDimensions.height !== prevOrigH) {
+    setPrevOrigW(originalDimensions.width);
+    setPrevOrigH(originalDimensions.height);
     if (originalDimensions.width && originalDimensions.height) {
       setCustomPixelW(originalDimensions.width.toString());
       setCustomPixelH(originalDimensions.height.toString());
     }
-  }, [originalDimensions.width, originalDimensions.height]);
+  }
 
   const applyRatioAndScale = (
     ratioId: string,

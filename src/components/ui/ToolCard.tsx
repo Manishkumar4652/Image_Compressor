@@ -27,6 +27,8 @@ export function ToolCard({ tool }: ToolCardProps) {
         return { image: '/images/tools/png.jpg', badge: '🔄 PNG ➔ WEBP' };
       case 'webp-to-jpg':
         return { image: '/images/tools/convert.jpg', badge: '🔄 WEBP ➔ JPG' };
+      case 'image-converter':
+        return { image: '/images/tools/convert.jpg', badge: '🔄 ALL-IN-ONE CONVERTER' };
       case 'compress-image-to-50kb':
         return { image: '/images/tools/target_size.jpg', badge: '🎯 STRICT 50 KB' };
       case 'compress-image-to-100kb':
