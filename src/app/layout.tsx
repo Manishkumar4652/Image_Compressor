@@ -4,7 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { constructMetadata } from '@/lib/seo/metadata';
-import { WebSiteJsonLd } from '@/components/seo/JsonLd';
+import { WebSiteJsonLd, OrganizationJsonLd } from '@/components/seo/JsonLd';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -32,6 +32,7 @@ export default function RootLayout({
       >
         <GoogleAnalytics />
         <WebSiteJsonLd />
+        <OrganizationJsonLd />
         <Navbar />
         <div className="flex-1 relative z-10">{children}</div>
         <Footer />

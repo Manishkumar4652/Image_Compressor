@@ -2,22 +2,33 @@ import React from 'react';
 import { siteConfig } from '@/config/site';
 import { ToolDefinition } from '@/types/tool';
 
-interface WebSiteJsonLdProps {
-  url?: string;
-}
-
-export function WebSiteJsonLd({ url = siteConfig.domain }: WebSiteJsonLdProps) {
+export function WebSiteJsonLd() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: siteConfig.name,
-    url,
-    description: siteConfig.description,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${url}/?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
+    name: 'PixOptimize',
+    alternateName: [
+      'PixOptimize Image Compressor',
+      'pixoptimize.vercel.app',
+    ],
+    url: 'https://pixoptimize.vercel.app/',
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
+export function OrganizationJsonLd() {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'PixOptimize',
+    url: 'https://pixoptimize.vercel.app/',
+    logo: 'https://pixoptimize.vercel.app/favicon.png',
   };
 
   return (

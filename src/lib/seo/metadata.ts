@@ -15,7 +15,6 @@ export function constructMetadata({
   title = siteConfig.name,
   description = siteConfig.description,
   image = siteConfig.ogImage,
-  icons = '/favicon.ico',
   noIndex = false,
   canonicalUrl,
   keywords = ['image compressor', 'online photo resizer', 'webp converter', 'browser image tool', 'pixoptimize'],
@@ -68,9 +67,15 @@ export function constructMetadata({
       creator: '@pixoptimize',
     },
     icons: {
-      icon: icons,
-      shortcut: icons,
-      apple: '/apple-touch-icon.png',
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/favicon.png', type: 'image/png', sizes: '512x512' },
+      ],
+      shortcut: '/favicon.ico',
+      apple: [
+        { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+        { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      ],
     },
     robots: {
       index: !noIndex,
